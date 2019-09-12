@@ -10,7 +10,7 @@ using namespace System::Windows::Forms::Design;
 
 
 //Los diferentes estados de las diferentes clases que usan maquinas de estados
-
+#pragma region Region_De_Estados
 
 enum EstadosBala
 {
@@ -23,7 +23,7 @@ enum EstadosArma
 };
 
 
-enum EstadosEnemigo 
+enum EstadosEnemigo
 {
 	EIdle, EMoving, EChasing, EShoot, EDying
 };
@@ -33,6 +33,9 @@ enum PlayerStates
 	Play, Damage
 };
 
+#pragma endregion
+
+//Manager encargado de las funciones matemáticas complejas
 ref class CManagerMatematico
 {
 private:
@@ -75,6 +78,7 @@ public:
 	}
 };
 
+//Clase Raiz la cual se encarga de dibujar los la entidad y marca el area que ocupa en el espacio
 ref class CBase
 {
 protected:
@@ -139,6 +143,8 @@ public:
 		loop = canLoop;
 	}
 
+	//Anima la imagen utilizando el indice actual
+	//Al tener loop como verdadero el indice volvera al minimo una vez alcanzado el maximo
 	virtual void Animar(Graphics^ graficador) {
 		DibujarImagen(graficador);
 		if (this->indiceX >= maxIndice) {
@@ -166,6 +172,9 @@ public:
 
 
 protected:
+	//Funcion que sirve para recortar el sprite sheet y seleccionar el frame indicado por el indice
+	//Sprite sheet -> la imagen con todas las imagenes del objeto
+	//Frame -> imagen individual dentro del sprite sheet
 	virtual Rectangle Recortar() {
 
 		short ancho = this->imagen->Width / this->subImagenesX;
@@ -176,11 +185,12 @@ protected:
 	}
 };
 
-
+//Funcion creada durante una clase virtual para definir el escenario
 ref class CEscenario : public CEntidad {
 	
 	//Cuando hice este codigo solo DIOS y yo entendiamos....
 	//Ahora solo DIOS
+	//By: El profe :c
 public:
 
 	const short anchoRecorte = 815;
@@ -215,18 +225,19 @@ protected:
 
 ref class CNivel
 {
+//Esta clase fue creada para mantener referencias de los enemigos, sin embargo no se pudo realizar
+//De momento la clase nivel Solo se usa para referenciar a la clase Escenario que tiene asignada
 private:
-	List<Rectangle>^ rectEntidades;
+//	List<Rectangle>^ rectEntidades;
 	CEscenario^ escenario;
 public:
 	CNivel() {}
 	CNivel(short nivelDeDificultad, CEscenario^ _escenario) {
-		rectEntidades = gcnew List<Rectangle>();
+		//rectEntidades = gcnew List<Rectangle>();
 		escenario = _escenario;
-		//delete imagen;
 	}
 	~CNivel() {
-		delete rectEntidades;
+//		delete rectEntidades;
 		delete escenario;
 	}
 
@@ -234,17 +245,21 @@ public:
 		return escenario;
 	}
 
-	List<Rectangle>^ GetPuntos() {
-		return rectEntidades;
-	}
+//	List<Rectangle>^ GetPuntos() {
+//		return rectEntidades;
+//	}
 
-	Rectangle GetPuntoEnemigo(short index) {
-		return rectEntidades[index];
-	}
+//	Rectangle GetPuntoEnemigo(short index) {
+//		return rectEntidades[index];
+//	}
 };
 
+//Manager encargado de las variables del nivel actual y funciones para manejar escenarios
 ref class CManagerDeNivel
 {
+//El manager de nivel nos permite ubicar la referencia del jugador, adicionalmente nos permite configurar el nivel actual y nivel máximo
+//Sin embargo debido a que los enemigos se crean dentro del MainGameManager esta clase es incapaz de generar enemigos por su cuenta
+//Adicionalmente el manager de nivel nos brinda una variable para conocer el area de la ventana utilizada al momento de abrir el juego
 private:
 	static CManagerDeNivel^ instance;
 
@@ -313,9 +328,15 @@ public:
 };
 
 ref class CMovil : public CEntidad {
+//Clase padre para todas las entidades que se mueven o realizan algún tipo de movimiento 
+//define cuando el objeto se puede mover, marca su velocidad y su vida
+//Debido a como funciona la vida, se ha agregado dos variables de vida, una de tipo double y otra de tipo short. Siendo la variable short la principal
+//
+//(Posibilemente se use tambien para entidades que no se mueven aplicandoles una velocidad de 0)
 public:
 	//Variables
-	float dX, dY;
+	float dX, dY;//Desface del movimiento
+
 	bool canMove = true;
 	float speed = 4;
 	double fvida = 0;
@@ -387,6 +408,9 @@ public:
 	}
 
 	/* Luego agregaremos la rotacion de los proyectiles
+	Originalmente se quizo realizar rotacion a los proyectiles, sin embargo esto resulto ser muy complicado para el trabajo
+	Por ende los proyectiles siempre se generarán con la misma rotación
+
 	void LookAt(short posX, short posY, Bitmap^ img)
 	{
 		short centerX = area.X + area.Width / 2;
@@ -425,16 +449,23 @@ public:
 	}
 };
 
+#pragma region Region_Clases_Finales
 ref class CBala : public CMovil {
+//Clase de Entidad que define lo que es un proyectil dentro del juego
+//Cuenta con un contador el cual utilizando la variable TiempoDeVida nos permite desaparecer la bala luego de un tiempo definido
+//Mantiene referencia del arma que la disparó y funciona por medio de una maquina de estados
+
+//Los dos estados son Impacto y Moviendose y su unica transición es:
+//Moving --> Impact
 public:
 
-	CBala(String^ ruta, Rectangle _area, short _subImagenesX, short _subImagenesY, float _speed, float lifeTime, double damage,List<CBala^>^ referencia)
-		: CMovil(ruta, _area, _subImagenesX, _subImagenesY, _speed){
+	CBala(String^ ruta, Rectangle _area, short _subImagenesX, short _subImagenesY, float _speed, float lifeTime, double damage, List<CBala^>^ referencia)
+		: CMovil(ruta, _area, _subImagenesX, _subImagenesY, _speed) {
 		listaReferencia = referencia;
 		daño = damage;
 	}
-	CBala(Bitmap^ _imagen, Rectangle _area, short _subImagenesX, short _subImagenesY, float _speed, float lifeTime, double damage,List<CBala^>^ referencia)
-		: CMovil(_imagen, _area, _subImagenesX, _subImagenesY,_speed) {
+	CBala(Bitmap^ _imagen, Rectangle _area, short _subImagenesX, short _subImagenesY, float _speed, float lifeTime, double damage, List<CBala^>^ referencia)
+		: CMovil(_imagen, _area, _subImagenesX, _subImagenesY, _speed) {
 		listaReferencia = referencia;
 		daño = damage;
 	}
@@ -452,7 +483,7 @@ public:
 
 	//Los metodos updates seran cargados en MyForm gracias al timer
 	//La bala tiene dos estados que definen lo que harán
-	void Update(Graphics^ graficador){//,List<CEntidad^>^ entidades) {
+	void Update(Graphics^ graficador) {//,List<CEntidad^>^ entidades) {
 		switch (estadoActual)
 		{
 		case  EstadosBala::Moving:
@@ -473,14 +504,14 @@ public:
 			}
 			else {
 				indiceX = 5;
-				DefinirMinMaxIndice(5,9,false);
+				DefinirMinMaxIndice(5, 9, false);
 
 				estadoActual = EstadosBala::Impact;
 			}
 			break;
 		case EstadosBala::Impact:
 			if (quickFixAreaDuration) {
-				DefinirMinMaxIndice(0,5, false);
+				DefinirMinMaxIndice(0, 5, false);
 			}
 			Animar(graficador);
 			break;
@@ -489,9 +520,9 @@ public:
 		}
 	}
 
-	
+
 	bool CheckCollison(Rectangle entidad) {
-//Usamos area en lugar de areaObjetivo para que se vea mejor
+		//Usamos area en lugar de areaObjetivo para que se vea mejor
 		if (area.IntersectsWith(entidad)) {
 			canMove = false;
 			return true;
@@ -519,8 +550,15 @@ public:
 	}
 };
 
-
 ref class CArma : public CEntidad {
+//Clase que define las armas dentro del Juego, las armas son los orbes que flotan alrededor de los personajes
+//Debido a esto la entidad cuenta con variables como el radio desde el cual orbita y el objetivo hacia el que apunta
+//Cuenta con las variables de las balas que utiliza, debido a esto un arma solo puede tener un tipo de bala.
+//En caso se quiera usar diferentes balas se deberan crear diferentes armas
+
+//La maquina de estados del arma cuenta con dos estados, Idle y Shooting
+//Sus transiciones son:
+//Idle <--> Shooting
 public:
 
 	CArma(String^ ruta, Rectangle _area, short _subImagenesX, short _subImagenesY, float _maxRadio)
@@ -630,7 +668,7 @@ public:
 			indiceX = indiceInicial;
 			canShoot = false;
 			//Creación de la bala
-			CBala^ bala = gcnew CBala(bulletImageRoute, Rectangle(area.X + area.Width / 2, area.Y + area.Height / 2, bulletWidth, bulletHeight), subX, 1, bulletSpeed, bulletLifeTime,1*MultiplicadorDeArma,referenciaBala);
+			CBala^ bala = gcnew CBala(bulletImageRoute, Rectangle(area.X + area.Width / 2, area.Y + area.Height / 2, bulletWidth, bulletHeight), subX, 1, bulletSpeed, bulletLifeTime, 1 * MultiplicadorDeArma, referenciaBala);
 			Rectangle balaArea = bala->GetArea();
 			if (bulletStartsDead) {
 				bala->estadoActual = EstadosBala::Impact;
@@ -638,7 +676,7 @@ public:
 				bala->daño = 0.22;
 			}
 			//Calcular posición para que no aparezca raro
-			bala->SetArea(Rectangle(balaArea.X - balaArea.Width/2,balaArea.Y - balaArea.Height/2,balaArea.Width,balaArea.Height));
+			bala->SetArea(Rectangle(balaArea.X - balaArea.Width / 2, balaArea.Y - balaArea.Height / 2, balaArea.Width, balaArea.Height));
 			//Definir animacion
 			bala->DefinirMinMaxIndice(0, 4, true);
 			//Definir dirección
@@ -685,6 +723,13 @@ private:
 };
 
 ref class CPlayer : public CMovil {
+//La clase Player define las diferentes acciones que puede hacer el jugador durante el juego
+//Cuenta con una lista de armas ya que puede hacer un cambio de ellas
+//Cuenta con una lista de balas para referenciar las balas que pertenecen al jugador
+//Adicionalmente el jugador tambien puede correr 
+
+//La maquina de estados del jugador cuenta con dos estados, Damage y Play, sin embargo, el unico estado que hace algo diferente es Damage
+
 public:
 	CPlayer(String^ ruta, Rectangle _area, short _subImagenesX, short _subImagenesY, float _speed)
 		: CMovil(ruta, _area, _subImagenesX, _subImagenesY, _speed) {
@@ -719,13 +764,15 @@ public:
 
 	float originalWidth;
 	float originalHeight;
-	
+
+	//Frames en los cuales el jugador no puede ser dañado
 	float invincibilityFrames = 10;
 	float currentFrames;
 	float runSpeed = 4;
 
 	short currentWeapon = 0;
 
+	//Variable que permite definir el maximo crecimiento del personaje al momento de eliminar enemigos
 	int maximasMedidas = 2;
 
 	void Update(Graphics^ graficador) {
@@ -735,7 +782,7 @@ public:
 		}
 		//for (short i = 0; i < armas->Count; i++)
 		//{
-			armas[currentWeapon]->Update(graficador,(CEntidad^)this);
+		armas[currentWeapon]->Update(graficador, (CEntidad^)this);
 		//}
 		Animar(graficador);
 		Mover(graficador);
@@ -777,10 +824,10 @@ public:
 	void ChangeDamageMultiplier() {
 		for (short i = 0; i < armas->Count; i++)
 		{
-			armas[i]->SetDamageMultiplier(CManagerDeNivel::GetInstance()->GetNumeroNivel()+1);
+			armas[i]->SetDamageMultiplier(CManagerDeNivel::GetInstance()->GetNumeroNivel() + 1);
 		}
 	}
-	
+
 	void ChangeCurrentWeapon(short weapon) {
 		currentWeapon = weapon;
 	}
@@ -792,8 +839,8 @@ public:
 	void Disparar(short indiceInicial, short indiceFinal) {
 		//for (int i = 0; i < armas->Count; i++)
 		//{
-			
-			armas[currentWeapon]->Disparar(indiceInicial, indiceFinal,balas);
+
+		armas[currentWeapon]->Disparar(indiceInicial, indiceFinal, balas);
 		//}
 	}
 
@@ -809,7 +856,7 @@ public:
 			area.Width = originalWidth * maximasMedidas;
 		}
 		if (area.Height > originalHeight*maximasMedidas) {
-			area.Height = originalHeight*maximasMedidas;
+			area.Height = originalHeight * maximasMedidas;
 		}
 	}
 };
@@ -824,11 +871,11 @@ public:
 	}
 
 	~CEnemigoMenor() {
-		
+
 	}
 
 	EstadosEnemigo estadoActual;
-	
+
 	float timeToChange = 7;
 	float currentTime;
 
@@ -860,13 +907,13 @@ public:
 		case EstadosEnemigo::EMoving:
 			Mover(graficador);
 			CheckCurrentTime();
-			
+
 			if (distance <= distanciaMax) {
 				estadoActual = EstadosEnemigo::EChasing;
 			}
 			break;
 		case EstadosEnemigo::EChasing:
-			punto = CManagerMatematico::GetInstance()->GetVectorDireccion(x1,y1,x2,y2);
+			punto = CManagerMatematico::GetInstance()->GetVectorDireccion(x1, y1, x2, y2);
 			dX = punto.X * speed;
 			dY = punto.Y * speed;
 			if (distance > distanciaMin) {
@@ -883,7 +930,7 @@ public:
 			else {
 				currentHealthStatusTime += 0.6;
 			}
-			
+
 
 			break;
 		default:
@@ -899,10 +946,11 @@ private:
 			int number = r.Next(1, 101);
 			if (number <= 25) {
 				estadoActual = EstadosEnemigo::EIdle;
-			} else if (number > 25 && number <= 100) {
+			}
+			else if (number > 25 && number <= 100) {
 				estadoActual = EstadosEnemigo::EMoving;
-				float xD = r.Next(-1,2) * r.NextDouble();
-				float yD = r.Next(-1,2) * r.NextDouble();
+				float xD = r.Next(-1, 2) * r.NextDouble();
+				float yD = r.Next(-1, 2) * r.NextDouble();
 				dX = speed * xD;
 				dY = speed * yD;
 			}
@@ -913,7 +961,6 @@ private:
 		}
 	}
 };
-
 
 ref class CEnemigoMayor : public CMovil {
 public:
@@ -974,7 +1021,7 @@ public:
 		}
 		for (int i = 0; i < armas->Count; i++)
 		{
-			armas[i]->Update(graficador,(CEntidad^)this);
+			armas[i]->Update(graficador, (CEntidad^)this);
 		}
 
 		Animar(graficador);
@@ -999,7 +1046,7 @@ public:
 
 			for (short i = 0; i < armas->Count; i++)
 			{
-				armas[i]->CambiarObjetivo(x1,y1 -50);
+				armas[i]->CambiarObjetivo(x1, y1 - 50);
 			}
 			break;
 		case EstadosEnemigo::EChasing:
@@ -1009,7 +1056,7 @@ public:
 
 			for (short i = 0; i < armas->Count; i++)
 			{
-				armas[i]->CambiarObjetivo(x2,y2);
+				armas[i]->CambiarObjetivo(x2, y2);
 			}
 
 			//Revisar la distancia con el jugador
@@ -1085,6 +1132,9 @@ private:
 	}
 };
 
+#pragma endregion
+
+//Manager encargado de las variables y funciones del juego
 ref class CMainGameManager
 {
 public:
