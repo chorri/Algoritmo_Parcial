@@ -1,8 +1,9 @@
 #pragma once
 
 template<typename T, T NADA = 0>
-struct Nodo
+class Nodo
 {
+public:
 	T elem;
 	Nodo* sig;
 	Nodo* ant;

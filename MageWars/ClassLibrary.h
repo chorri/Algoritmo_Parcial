@@ -478,7 +478,7 @@ public:
 
 	//Referencia de la lista donde está creado
 	List<CBala^>^ listaReferencia;
-
+	
 	bool quickFixAreaDuration = false;
 
 	//Los metodos updates seran cargados en MyForm gracias al timer
