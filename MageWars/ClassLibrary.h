@@ -1,9 +1,9 @@
 #pragma once
+#include "Lista.h"
 using namespace System;//Rectangle
 using namespace System::ComponentModel;
 using namespace System::Drawing;//Bitmap
 using namespace System::Drawing::Drawing2D;
-using namespace System::Collections::Generic;// List :D
 using namespace System::Windows::Forms;
 using namespace System::Windows::Forms::Design;
 
@@ -266,20 +266,20 @@ private:
 	Rectangle areaDeVentana;
 
 	CEntidad^ jugador;
-	List<CNivel^>^ niveles;
+	Lista<CNivel^>^ niveles;
 	short nivelMaximo = 5;
 	short nivelActual = 0;
 public:
 
 	CManagerDeNivel() {
-		niveles = gcnew List<CNivel^>();
+		niveles = gcnew Lista<CNivel^>();
 
 		instance = this;
 	}
 	~CManagerDeNivel() {
-		for (short i = 0; i < niveles->Count; i++)
+		for (short i = 0; i < niveles->lon; i++)
 		{
-			delete niveles[i];
+			delete niveles->At(i);
 		}
 		delete niveles;
 	}
@@ -311,7 +311,7 @@ public:
 
 	void AgregarNivel(short nivelDeDificultad, CEscenario^ escenario) {
 		CNivel^ nivelTemporal = gcnew CNivel(nivelDeDificultad, escenario);
-		niveles->Add(nivelTemporal);
+		niveles->AgregarFinal(nivelTemporal);
 	}
 
 	void CambiarDeNivel(int index) {
@@ -319,7 +319,7 @@ public:
 	}
 
 	CNivel^ GetNivelActual() {
-		return niveles[nivelActual];
+		return niveles->ElementoAt(nivelActual);
 	}
 
 	static CManagerDeNivel^ GetInstance() {
@@ -459,12 +459,12 @@ ref class CBala : public CMovil {
 //Moving --> Impact
 public:
 
-	CBala(String^ ruta, Rectangle _area, short _subImagenesX, short _subImagenesY, float _speed, float lifeTime, double damage, List<CBala^>^ referencia)
+	CBala(String^ ruta, Rectangle _area, short _subImagenesX, short _subImagenesY, float _speed, float lifeTime, double damage, Lista<CBala^>^ referencia)
 		: CMovil(ruta, _area, _subImagenesX, _subImagenesY, _speed) {
 		listaReferencia = referencia;
 		daño = damage;
 	}
-	CBala(Bitmap^ _imagen, Rectangle _area, short _subImagenesX, short _subImagenesY, float _speed, float lifeTime, double damage, List<CBala^>^ referencia)
+	CBala(Bitmap^ _imagen, Rectangle _area, short _subImagenesX, short _subImagenesY, float _speed, float lifeTime, double damage, Lista<CBala^>^ referencia)
 		: CMovil(_imagen, _area, _subImagenesX, _subImagenesY, _speed) {
 		listaReferencia = referencia;
 		daño = damage;
@@ -477,7 +477,7 @@ public:
 	double daño;
 
 	//Referencia de la lista donde está creado
-	List<CBala^>^ listaReferencia;
+	Lista<CBala^>^ listaReferencia;
 	
 	bool quickFixAreaDuration = false;
 
@@ -660,7 +660,7 @@ public:
 	}
 
 	//Cambia el estado del arma e invoca balas
-	void Disparar(short indiceInicial, short indiceFinal, List<CBala^>^ referenciaBala) {
+	void Disparar(short indiceInicial, short indiceFinal, Lista<CBala^>^ referenciaBala) {
 		if (canShoot) {
 			//Configurar Arma
 			DefinirMinMaxIndice(indiceInicial, indiceFinal, false);
@@ -682,7 +682,7 @@ public:
 			//Definir dirección
 			bala->dX = vectorDireccionX;
 			bala->dY = vectorDireccionY;
-			referenciaBala->Add(bala);
+			referenciaBala->AgregarFinal(bala);
 		}
 	}
 
@@ -733,32 +733,32 @@ ref class CPlayer : public CMovil {
 public:
 	CPlayer(String^ ruta, Rectangle _area, short _subImagenesX, short _subImagenesY, float _speed)
 		: CMovil(ruta, _area, _subImagenesX, _subImagenesY, _speed) {
-		armas = gcnew List<CArma^>();
-		balas = gcnew List<CBala^>();
+		armas = gcnew Lista<CArma^>();
+		balas = gcnew Lista<CBala^>();
 		originalWidth = area.Width;
 		originalHeight = area.Height;
 	}
 	CPlayer(Bitmap^ _imagen, Rectangle _area, short _subImagenesX, short _subImagenesY, float _speed)
 		: CMovil(_imagen, _area, _subImagenesX, _subImagenesY, _speed) {
-		armas = gcnew List<CArma^>();
-		balas = gcnew List<CBala^>();
+		armas = gcnew Lista<CArma^>();
+		balas = gcnew Lista<CBala^>();
 		originalWidth = area.Width;
 		originalHeight = area.Height;
 	}
 
 	~CPlayer() {
-		for (int i = 0; i < armas->Count; i++)
+		for (int i = 0; i < armas->lon; i++)
 		{
-			delete armas[i];
+			armas->EliminarPosicion(i);
 		}
-		for (int i = 0; i < balas->Count; i++)
+		for (int i = 0; i < balas->lon; i++)
 		{
-			delete balas[i];
+			balas->EliminarPosicion(i);
 		}
 	}
 
-	List<CBala^>^ balas;
-	List<CArma^>^ armas;
+	Lista<CBala^>^ balas;
+	Lista<CArma^>^ armas;
 
 	PlayerStates estadoActual;
 
@@ -776,7 +776,7 @@ public:
 	int maximasMedidas = 2;
 
 	void Update(Graphics^ graficador) {
-		for (short i = 0; i < balas->Count; i++)
+		for (short i = 0; i < balas->lon; i++)
 		{
 			balas[i]->Update(graficador);
 		}

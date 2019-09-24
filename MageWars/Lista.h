@@ -1,18 +1,33 @@
 #pragma once
-#include "Nodo.h"
+//#include "Nodo.h"
 
 template<typename T, T NADA = 0>
-class Lista
+class Nodo
+{
+public:
+	T elem;
+	Nodo* sig;
+	Nodo* ant;
+
+	
+	Nodo(T elem = NADA, Nodo*sig = nullptr, Nodo*ant = nullptr) : elem(elem), sig(sig), ant(ant) {}
+};
+
+template<typename T, T NADA = 0>
+ref class Lista
 {
 	Nodo* ini;
-	unsigned int lon;
+	Nodo* aux;
+	Nodo* nuevo;
 
 public:
+	unsigned int lon;
+
 	Lista(): ini(nullptr), lon(0) {}
 	~Lista(){}
 
 	void AgregarInicio(T elem) {
-		Nodo* nuevo = new Nodo(elem, ini, nullptr);
+		nuevo = new Nodo(elem, ini, nullptr);
 		if (lon > 0) {
 			ini->ant = nuevo;	
 		}
@@ -21,21 +36,21 @@ public:
 		++lon;
 	}
 	void AgregarFinal(T elem) {
-		Nodo* aux = ini;
+		aux = ini;
 		for (unsigned int i = 1; i < lon; ++i) {
 			aux = aux->sig;
 		}
-		Nodo* nuevo = new Nodo(elem, nullptr, aux);
+		nuevo = new Nodo(elem, nullptr, aux);
 		if (lon > 0) {
 			aux->sig = nuevo;
 		}
 		else ini = nuevo;
-
+	
 		++lon;
 	}
 	void AgregarPosicion(T elem, unsigned int pos) {
 		if (pos > 0 && pos <= lon + 1) {
-			Nodo* aux = ini;
+			aux = ini;
 			for (unsigned int i = 1; i < pos; ++i) {
 				aux = aux->sig;
 			}
@@ -46,7 +61,7 @@ public:
 				AgregarFinal(elem);
 			}
 			else {
-				Nodo* nuevo = new Nodo(elem, aux, aux->ant);
+				nuevo = new Nodo(elem, aux, aux->ant);
 				nuevo->ant->sig = nuevo;
 				nuevo->sig->ant = nuevo;
 
@@ -57,7 +72,7 @@ public:
 	}
 	void EliminarInicio() {
 		if (lon > 0) {
-			Nodo* aux = ini;
+			aux = ini;
 			ini = aux->sig;
 			if (lon > 1) {
 				ini->ant = nullptr;
@@ -69,7 +84,7 @@ public:
 	}
 	void EliminarFinal() {
 		if (lon > 0) {
-			Nodo* aux = ini;
+			aux = ini;
 			for (unsigned int = 1; i < lon; ++i) {
 				aux = aux->sig;
 			}
@@ -92,7 +107,7 @@ public:
 				EliminarFinal();
 			}
 			else {
-				Nodo* aux = ini;
+				aux = ini;
 				for (unsigned int = 1; i < pos; ++i) {
 					aux = aux->sig;
 				}
@@ -110,15 +125,23 @@ public:
 	}
 
 	Nodo* At(unsigned int pos) {
-		Nodo* aux = ini;
+		aux = ini;
 		for (unsigned int i = 1; i < pos; ++i) {
 			aux = aux->sig;
 		}
 		return aux;
 	}
 
+	T ElementoAt(unsigned int pos) {
+		aux = ini;
+		for (unsigned int i = 1; i < pos; ++i) {
+			aux = aux->sig;
+		}
+		return aux->elem;
+	}
+
 	void Remove(T val) {
-		Nodo* aux = ini;
+		aux = ini;
 		for (unsigned int i = 1; i <= lon; ++i) {
 			if (aux->elem == val) {
 				EliminarPosicion(i);
