@@ -780,10 +780,7 @@ public:
 		{
 			balas[i]->Update(graficador);
 		}
-		//for (short i = 0; i < armas->Count; i++)
-		//{
 		armas[currentWeapon]->Update(graficador, (CEntidad^)this);
-		//}
 		Animar(graficador);
 		Mover(graficador);
 
