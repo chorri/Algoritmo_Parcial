@@ -363,8 +363,8 @@ private: System::Void MyForm_Load(System::Object^  sender, System::EventArgs^  e
 	GameManager->AgregarBoton(this->EvenMoreLivesButton);
 	GameManager->AgregarBoton(this->LessLivesButton);
 	GameManager->AgregarBoton(this->EvenLessLivesButton);
-	GameManager->AgregarBoton(this->MoreTimeButton);
 	GameManager->AgregarBoton(this->LessTimeButton);
+	GameManager->AgregarBoton(this->MoreTimeButton);
 
 	GameManager->AgregarTexto(this->DisplayMinutos);
 	GameManager->AgregarTexto(this->DisplayVidas);
@@ -429,17 +429,17 @@ private: System::Void PlayerKeyDown(System::Object^  sender, System::Windows::Fo
 			break;
 
 		case Keys::NumPad1:
-			this->GameManager->mainPlayer->ChangeCurrentWeapon(0);
+			this->GameManager->mainPlayer->ChangeCurrentWeapon(1);
 			break;
 		case Keys::NumPad2:
-			this->GameManager->mainPlayer->ChangeCurrentWeapon(1);
+			this->GameManager->mainPlayer->ChangeCurrentWeapon(2);
 			break;
 
 		case Keys::Q:
-			this->GameManager->mainPlayer->ChangeCurrentWeapon(0);
+			this->GameManager->mainPlayer->ChangeCurrentWeapon(1);
 			break;
 		case Keys::W:
-			this->GameManager->mainPlayer->ChangeCurrentWeapon(1);
+			this->GameManager->mainPlayer->ChangeCurrentWeapon(2);
 			break;
 		default:
 			break;

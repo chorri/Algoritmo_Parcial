@@ -277,7 +277,7 @@ public:
 		instance = this;
 	}
 	~CManagerDeNivel() {
-		for (short i = 0; i < niveles->lon; i++)
+		for (short i = 1; i <= niveles->lon; i++)
 		{
 			delete niveles->ElementoAt(i);
 		}
@@ -747,11 +747,11 @@ public:
 	}
 
 	~CPlayer() {
-		for (int i = 0; i < armas->lon; i++)
+		for (int i = 1; i <= armas->lon; i++)
 		{
 			armas->EliminarPosicion(i);
 		}
-		for (int i = 0; i < balas->lon; i++)
+		for (int i = 1; i <= balas->lon; i++)
 		{
 			balas->EliminarPosicion(i);
 		}
@@ -776,7 +776,7 @@ public:
 	int maximasMedidas = 2;
 
 	void Update(Graphics^ graficador) {
-		for (short i = 0; i < balas->lon; i++)
+		for (short i = 1; i <= balas->lon; i++)
 		{
 			balas->ElementoAt(i)->Update(graficador);
 		}
@@ -819,7 +819,7 @@ public:
 	}
 
 	void ChangeDamageMultiplier() {
-		for (short i = 0; i < armas->lon; i++)
+		for (short i = 1; i <= armas->lon; i++)
 		{
 			armas->ElementoAt(i)->SetDamageMultiplier(CManagerDeNivel::GetInstance()->GetNumeroNivel() + 1);
 		}
@@ -975,11 +975,11 @@ public:
 	}
 
 	~CEnemigoMayor() {
-		for (int i = 0; i < armas->lon; i++)
+		for (int i = 1; i <= armas->lon; i++)
 		{
 			armas->EliminarPosicion(i);
 		}
-		for (int i = 0; i < balas->lon; i++)
+		for (int i = 1; i <= balas->lon; i++)
 		{
 			balas->EliminarPosicion(i);
 		}
@@ -1012,11 +1012,11 @@ public:
 	}
 
 	void Update(Graphics^ graficador) {
-		for (int i = 0; i < balas->lon; i++)
+		for (int i = 1; i <= balas->lon; i++)
 		{
 			balas->ElementoAt(i)->Update(graficador);
 		}
-		for (int i = 0; i < armas->lon; i++)
+		for (int i = 1; i <= armas->lon; i++)
 		{
 			armas->ElementoAt(i)->Update(graficador, (CEntidad^)this);
 		}
@@ -1041,7 +1041,7 @@ public:
 				estadoActual = EstadosEnemigo::EChasing;
 			}
 
-			for (short i = 0; i < armas->lon; i++)
+			for (short i = 1; i <= armas->lon; i++)
 			{
 				armas->ElementoAt(i)->CambiarObjetivo(x1, y1 - 50);
 			}
@@ -1051,7 +1051,7 @@ public:
 			dX = punto.X * (speed + CManagerDeNivel::GetInstance()->GetNumeroNivel()*velocidadPorNivel);
 			dY = punto.Y * (speed + CManagerDeNivel::GetInstance()->GetNumeroNivel()*velocidadPorNivel);
 
-			for (short i = 0; i < armas->lon; i++)
+			for (short i = 1; i <= armas->lon; i++)
 			{
 				armas->ElementoAt(i)->CambiarObjetivo(x2, y2);
 			}
@@ -1069,7 +1069,7 @@ public:
 			}
 			break;
 		case EstadosEnemigo::EShoot:
-			for (short i = 0; i < armas->lon; i++)
+			for (short i = 1; i <= armas->lon; i++)
 			{
 				armas->ElementoAt(i)->CambiarObjetivo(x2, y2);
 			}
@@ -1099,7 +1099,7 @@ public:
 	}
 
 	void Disparar(short indiceInicial, short indiceFinal) {
-		for (int i = 0; i < armas->lon; i++)
+		for (int i = 1; i <= armas->lon; i++)
 		{
 			armas->ElementoAt(i)->Disparar(indiceInicial, indiceFinal, balas);
 		}
@@ -1181,12 +1181,12 @@ public:
 		//No eliminamos al mainPlayer porque se elimina dentro del Form
 
 
-		/*for (short i = 0; i < eneMayor->lon; i++)
+		/*for (short i = 1; i <= eneMayor->lon; i++)
 		{
 			eneMayor->EliminarPosicion(i);
 		}
 		delete eneMayor;
-		for (short i = 0; i < eneMenor->lon; i++)
+		for (short i = 1; i <= eneMenor->lon; i++)
 		{
 			eneMenor->EliminarPosicion(i);
 		}
@@ -1217,7 +1217,7 @@ public:
 
 	void StartNivel() {
 		
-		for (short i = 0; i < eneMayor->lon; i++)
+		for (short i = 1; i <= eneMayor->lon; i++)
 		{
 			eneMayor->ElementoAt(i)->balas->BorrarTodo();
 			eneMayor->ElementoAt(i)->armas->BorrarTodo();
@@ -1296,12 +1296,12 @@ public:
 	}
 
 	void SetMenuVisibility(bool isVisible) {
-		for (short i = 0; i < labels->lon; i++)
+		for (short i = 1; i <= labels->lon; i++)
 		{
 			labels->ElementoAt(i)->Visible = isVisible;
 			labels->ElementoAt(i)->Enabled = isVisible;
 		}
-		for (short i = 0; i < buttons->lon; i++)
+		for (short i = 1; i <= buttons->lon; i++)
 		{
 			buttons->ElementoAt(i)->Visible = isVisible;
 			buttons->ElementoAt(i)->Enabled = isVisible;
@@ -1323,11 +1323,11 @@ public:
 		if (juegoEnProgreso)
 		{
 			mainPlayer->Update(graficador);
-			for (int i = 0; i < eneMenor->lon; i++)
+			for (int i = 1; i <= eneMenor->lon; i++)
 			{
 				eneMenor->ElementoAt(i)->Update(graficador);
 			}
-			for (int i = 0; i < eneMayor->lon; i++)
+			for (int i = 1; i <= eneMayor->lon; i++)
 			{
 				eneMayor->ElementoAt(i)->Update(graficador);
 			}
@@ -1353,9 +1353,9 @@ public:
 	}
 
 	void CheckColision() {
-		for (short i = 0; i < mainPlayer->balas->lon; i++)
+		for (short i = 1; i <= mainPlayer->balas->lon; i++)
 		{
-			for (short j = 0; j < eneMayor->lon; j++)
+			for (short j = 1; j <= eneMayor->lon; j++)
 			{
 				if (mainPlayer->balas->ElementoAt(i)->CheckCollison(eneMayor->ElementoAt(j)->GetArea()) && (mainPlayer->balas->ElementoAt(i)->estadoActual != EstadosBala::Impact || mainPlayer->balas->ElementoAt(i)->quickFixAreaDuration)) {
 					eneMayor->ElementoAt(j)->ChangeVida(-mainPlayer->balas->ElementoAt(i)->daño);
@@ -1368,7 +1368,7 @@ public:
 					}
 				}
 			}
-			for (short j = 0; j < eneMenor->lon; j++)
+			for (short j = 1; j <= eneMenor->lon; j++)
 			{
 				if (mainPlayer->balas->ElementoAt(i)->CheckCollison(eneMenor->ElementoAt(j)->GetArea()) && (mainPlayer->balas->ElementoAt(i)->estadoActual != EstadosBala::Impact || mainPlayer->balas->ElementoAt(i)->quickFixAreaDuration)) {
 					eneMenor->ElementoAt(j)->ChangeVida(-mainPlayer->balas->ElementoAt(i)->daño);
@@ -1382,7 +1382,7 @@ public:
 				}
 			}
 		}
-		for (short i = 0; i < eneMayor->lon; i++)
+		for (short i = 1; i <= eneMayor->lon; i++)
 		{
 			for (int j = 0; j < eneMayor->ElementoAt(i)->balas->lon; j++)
 			{
@@ -1391,7 +1391,7 @@ public:
 				}
 			}
 		}
-		for (short i = 0; i < eneMenor->lon; i++)
+		for (short i = 1; i <= eneMenor->lon; i++)
 		{
 			if (eneMenor->ElementoAt(i)->GetArea().IntersectsWith(mainPlayer->GetArea())) {
 				mainPlayer->TakeDamage(-eneMenor->ElementoAt(i)->damage);

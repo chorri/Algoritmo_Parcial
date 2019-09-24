@@ -24,19 +24,19 @@ ref class Lista
 	Nodo<T>^ nuevo;
 
 public:
-	unsigned int lon;
+	unsigned int lon = 0;
 
 	Lista(): ini(nullptr), lon(0) {}
 	~Lista(){}
 
 	void AgregarInicio(T elem) {
-		nuevo = gcnew Nodo(elem, ini, nullptr);
+		nuevo = gcnew Nodo<T>(elem, ini, nullptr);
 		if (lon > 0) {
 			ini->ant = nuevo;	
 		}
-		ini = nuevo;
+		 ini= nuevo;
 		
-		++lon;
+		lon++;
 	}
 	void AgregarFinal(T elem) {
 		aux = ini;
@@ -47,9 +47,12 @@ public:
 		if (lon > 0) {
 			aux->sig = nuevo;
 		}
-		else ini = nuevo;
+		else
+		{
+			ini = nuevo;
+		}
 	
-		++lon;
+		lon++;
 	}
 	void AgregarPosicion(T elem, unsigned int pos) {
 		if (pos > 0 && pos <= lon + 1) {
@@ -68,10 +71,13 @@ public:
 				nuevo->ant->sig = nuevo;
 				nuevo->sig->ant = nuevo;
 
-				++lon;
+				lon++;
+
 			}
 		}
-		else //error;
+		else {
+
+		}//error;
 	}
 	void EliminarInicio() {
 		if (lon > 0) {
