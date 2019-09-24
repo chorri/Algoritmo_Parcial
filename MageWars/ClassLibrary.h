@@ -279,7 +279,7 @@ public:
 	~CManagerDeNivel() {
 		for (short i = 0; i < niveles->lon; i++)
 		{
-			delete niveles->At(i);
+			delete niveles->ElementoAt(i);
 		}
 		delete niveles;
 	}
@@ -778,9 +778,9 @@ public:
 	void Update(Graphics^ graficador) {
 		for (short i = 0; i < balas->lon; i++)
 		{
-			balas->At(i)->Update(graficador);
+			balas->ElementoAt(i)->Update(graficador);
 		}
-		armas->At(currentWeapon)->Update(graficador, (CEntidad^)this);
+		armas->ElementoAt(currentWeapon)->Update(graficador, (CEntidad^)this);
 		Animar(graficador);
 		Mover(graficador);
 
@@ -821,7 +821,7 @@ public:
 	void ChangeDamageMultiplier() {
 		for (short i = 0; i < armas->lon; i++)
 		{
-			armas->At(i)->SetDamageMultiplier(CManagerDeNivel::GetInstance()->GetNumeroNivel() + 1);
+			armas->ElementoAt(i)->SetDamageMultiplier(CManagerDeNivel::GetInstance()->GetNumeroNivel() + 1);
 		}
 	}
 
@@ -837,7 +837,7 @@ public:
 		//for (int i = 0; i < armas->Count; i++)
 		//{
 
-		armas->At(currentWeapon)->Disparar(indiceInicial, indiceFinal, balas);
+		armas->ElementoAt(currentWeapon)->Disparar(indiceInicial, indiceFinal, balas);
 		//}
 	}
 
@@ -1014,11 +1014,11 @@ public:
 	void Update(Graphics^ graficador) {
 		for (int i = 0; i < balas->lon; i++)
 		{
-			balas->At(i)->Update(graficador);
+			balas->ElementoAt(i)->Update(graficador);
 		}
 		for (int i = 0; i < armas->lon; i++)
 		{
-			armas->At(i)->Update(graficador, (CEntidad^)this);
+			armas->ElementoAt(i)->Update(graficador, (CEntidad^)this);
 		}
 
 		Animar(graficador);
@@ -1043,7 +1043,7 @@ public:
 
 			for (short i = 0; i < armas->lon; i++)
 			{
-				armas->At(i)->CambiarObjetivo(x1, y1 - 50);
+				armas->ElementoAt(i)->CambiarObjetivo(x1, y1 - 50);
 			}
 			break;
 		case EstadosEnemigo::EChasing:
@@ -1053,7 +1053,7 @@ public:
 
 			for (short i = 0; i < armas->lon; i++)
 			{
-				armas->At(i)->CambiarObjetivo(x2, y2);
+				armas->ElementoAt(i)->CambiarObjetivo(x2, y2);
 			}
 
 			//Revisar la distancia con el jugador
@@ -1071,7 +1071,7 @@ public:
 		case EstadosEnemigo::EShoot:
 			for (short i = 0; i < armas->lon; i++)
 			{
-				armas->At(i)->CambiarObjetivo(x2, y2);
+				armas->ElementoAt(i)->CambiarObjetivo(x2, y2);
 			}
 			if (attacktime >= attackSpeed - CManagerDeNivel::GetInstance()->GetNumeroNivel()) {
 				attacktime = 0;
@@ -1101,7 +1101,7 @@ public:
 	void Disparar(short indiceInicial, short indiceFinal) {
 		for (int i = 0; i < armas->lon; i++)
 		{
-			armas->At(i)->Disparar(indiceInicial, indiceFinal, balas);
+			armas->ElementoAt(i)->Disparar(indiceInicial, indiceFinal, balas);
 		}
 	}
 
@@ -1160,13 +1160,28 @@ public:
 	}
 	~CMainGameManager() {
 
-		/*
-		AGREGAR REMOVE ALL LUEGO DE PROBAR QUE FUNCIONA
-		*/
+		
+		eneMayor->BorrarTodo();
+		delete eneMayor;
+
+		eneMenor->BorrarTodo();
+		delete eneMenor;
+		
+		labels->BorrarTodo();
+		delete labels;
+
+		//En caso falle revisar esta zona
+		buttons->BorrarTodo();
+		delete buttons;
+
+		delete mainTimer;
+		delete timeText;
+		delete pauseText;
+
+		//No eliminamos al mainPlayer porque se elimina dentro del Form
 
 
-		//Agregados deletes luego de la revision
-		for (short i = 0; i < eneMayor->lon; i++)
+		/*for (short i = 0; i < eneMayor->lon; i++)
 		{
 			eneMayor->EliminarPosicion(i);
 		}
@@ -1185,30 +1200,30 @@ public:
 		{
 			delete buttons[i];
 		}
-		delete buttons;
-		delete mainTimer;
-		delete timeText;
-		//No eliminamos al mainPlayer porque se elimina dentro del Form
+		*/
+		//delete buttons;
+		//delete mainTimer;
+		//delete timeText;
 	}
 
 	Timer^ mainTimer;
-	List<Label^>^ labels;
+	Lista<Label^>^ labels;
 	Label^ timeText;
 	Label^ pauseText;
-	List<Button^>^ buttons;
+	Lista<Button^>^ buttons;
 
 	short startingEnemys;
 	short currentEnemys;
 
 	void StartNivel() {
 		
-		for (short i = 0; i < eneMayor->Count; i++)
+		for (short i = 0; i < eneMayor->lon; i++)
 		{
-			eneMayor[i]->balas->Clear();
-			eneMayor[i]->armas->Clear();
+			eneMayor->ElementoAt(i)->balas->BorrarTodo();
+			eneMayor->ElementoAt(i)->armas->BorrarTodo();
 		}
-		eneMayor->Clear();
-		eneMenor->Clear();
+		eneMayor->BorrarTodo();
+		eneMenor->BorrarTodo();
 		startingEnemys = 0;
 		currentEnemys = 0;
 
@@ -1226,7 +1241,7 @@ public:
 			short y = r.Next(temp->GetArea().Height, CManagerDeNivel::GetInstance()->GetAreaDeVentana().Height - temp->GetArea().Height);
 			temp->SetArea(Rectangle(x,y,temp->GetArea().Width,temp->GetArea().Height));
 			temp->SetVida(temp->vidasIniciales + add);
-			eneMenor->Add(temp);
+			eneMenor->AgregarFinal(temp);
 			currentEnemys++;
 		}
 		//Enemigos Mayores
@@ -1245,7 +1260,7 @@ public:
 			temp->AgregarArma(tempArma);
 			temp->ChangeDistanciaMin(100 + add*20);
 			temp->ChangeDistanciaMax(200 + add*20);
-			eneMayor->Add(temp);
+			eneMayor->AgregarFinal(temp);
 			currentEnemys++;
 		}
 		startingEnemys = currentEnemys;
@@ -1273,31 +1288,31 @@ public:
 	}
 
 	void AgregarBoton(Button^ button){
-		buttons->Add(button);
+		buttons->AgregarFinal(button);
 	}
 
 	void AgregarTexto(Label^ label) {
-		labels->Add(label);
+		labels->AgregarFinal(label);
 	}
 
 	void SetMenuVisibility(bool isVisible) {
-		for (short i = 0; i < labels->Count; i++)
+		for (short i = 0; i < labels->lon; i++)
 		{
-			labels[i]->Visible = isVisible;
-			labels[i]->Enabled = isVisible;
+			labels->ElementoAt(i)->Visible = isVisible;
+			labels->ElementoAt(i)->Enabled = isVisible;
 		}
-		for (short i = 0; i < buttons->Count; i++)
+		for (short i = 0; i < buttons->lon; i++)
 		{
-			buttons[i]->Visible = isVisible;
-			buttons[i]->Enabled = isVisible;
+			buttons->ElementoAt(i)->Visible = isVisible;
+			buttons->ElementoAt(i)->Enabled = isVisible;
 		}
 	}
 	
 	void YouWin(Graphics^ graficador) {
 		graficador->Clear(Color::White);
-		labels[2]->Text = "GANASTE";
-		labels[3]->Text = "GANASTE";
-		buttons[0]->Text = "GANASTE";
+		labels->ElementoAt(2)->Text = "GANASTE";
+		labels->ElementoAt(3)->Text = "GANASTE";
+		buttons->ElementoAt(0)->Text = "GANASTE";
 		AlternateMainTimer();
 		juegoEnProgreso = false;
 		SetMenuVisibility(true);
@@ -1308,13 +1323,13 @@ public:
 		if (juegoEnProgreso)
 		{
 			mainPlayer->Update(graficador);
-			for (int i = 0; i < eneMenor->Count; i++)
+			for (int i = 0; i < eneMenor->lon; i++)
 			{
-				eneMenor[i]->Update(graficador);
+				eneMenor->ElementoAt(i)->Update(graficador);
 			}
-			for (int i = 0; i < eneMayor->Count; i++)
+			for (int i = 0; i < eneMayor->lon; i++)
 			{
-				eneMayor[i]->Update(graficador);
+				eneMayor->ElementoAt(i)->Update(graficador);
 			}
 
 			CheckColision();
@@ -1338,28 +1353,28 @@ public:
 	}
 
 	void CheckColision() {
-		for (short i = 0; i < mainPlayer->balas->Count; i++)
+		for (short i = 0; i < mainPlayer->balas->lon; i++)
 		{
-			for (short j = 0; j < eneMayor->Count; j++)
+			for (short j = 0; j < eneMayor->lon; j++)
 			{
-				if (mainPlayer->balas[i]->CheckCollison(eneMayor[j]->GetArea()) && (mainPlayer->balas[i]->estadoActual != EstadosBala::Impact || mainPlayer->balas[i]->quickFixAreaDuration)) {
-					eneMayor[j]->ChangeVida(-mainPlayer->balas[i]->daño);
-					if (eneMayor[j]->vida <= 0) {
-						eneMayor[j]->estadoActual = EstadosEnemigo::EDying;
-						eneMayor->Remove(eneMayor[j]);
+				if (mainPlayer->balas->ElementoAt(i)->CheckCollison(eneMayor->ElementoAt(j)->GetArea()) && (mainPlayer->balas->ElementoAt(i)->estadoActual != EstadosBala::Impact || mainPlayer->balas->ElementoAt(i)->quickFixAreaDuration)) {
+					eneMayor->ElementoAt(j)->ChangeVida(-mainPlayer->balas->ElementoAt(i)->daño);
+					if (eneMayor->ElementoAt(j)->vida <= 0) {
+						eneMayor->ElementoAt(j)->estadoActual = EstadosEnemigo::EDying;
+						eneMayor->Remove(eneMayor->ElementoAt(j));
 						currentEnemys--;
 						mainPlayer->ChangeVida(5);
 						mainPlayer->Crecer(0.08);
 					}
 				}
 			}
-			for (short j = 0; j < eneMenor->Count; j++)
+			for (short j = 0; j < eneMenor->lon; j++)
 			{
-				if (mainPlayer->balas[i]->CheckCollison(eneMenor[j]->GetArea()) && (mainPlayer->balas[i]->estadoActual != EstadosBala::Impact || mainPlayer->balas[i]->quickFixAreaDuration)) {
-					eneMenor[j]->ChangeVida(-mainPlayer->balas[i]->daño);
-					if (eneMenor[j]->vida <= 0) {
-						eneMenor[j]->estadoActual = EstadosEnemigo::EDying;
-						eneMenor->Remove(eneMenor[j]);
+				if (mainPlayer->balas->ElementoAt(i)->CheckCollison(eneMenor->ElementoAt(j)->GetArea()) && (mainPlayer->balas->ElementoAt(i)->estadoActual != EstadosBala::Impact || mainPlayer->balas->ElementoAt(i)->quickFixAreaDuration)) {
+					eneMenor->ElementoAt(j)->ChangeVida(-mainPlayer->balas->ElementoAt(i)->daño);
+					if (eneMenor->ElementoAt(j)->vida <= 0) {
+						eneMenor->ElementoAt(j)->estadoActual = EstadosEnemigo::EDying;
+						eneMenor->Remove(eneMenor->ElementoAt(j));
 						currentEnemys--;
 						mainPlayer->ChangeVida(1);
 						mainPlayer->Crecer(0.05);
@@ -1367,19 +1382,19 @@ public:
 				}
 			}
 		}
-		for (short i = 0; i < eneMayor->Count; i++)
+		for (short i = 0; i < eneMayor->lon; i++)
 		{
-			for (int j = 0; j < eneMayor[i]->balas->Count; j++)
+			for (int j = 0; j < eneMayor->ElementoAt(i)->balas->lon; j++)
 			{
-				if (eneMayor[i]->balas[j]->CheckCollison(mainPlayer->GetArea()) && eneMayor[i]->balas[j]->estadoActual != EstadosBala::Impact) {
-					mainPlayer->TakeDamage(-eneMayor[i]->balas[j]->daño);
+				if (eneMayor->ElementoAt(i)->balas->ElementoAt(j)->CheckCollison(mainPlayer->GetArea()) && eneMayor->ElementoAt(i)->balas->ElementoAt(j)->estadoActual != EstadosBala::Impact) {
+					mainPlayer->TakeDamage(-eneMayor->ElementoAt(i)->balas->ElementoAt(j)->daño);
 				}
 			}
 		}
-		for (short i = 0; i < eneMenor->Count; i++)
+		for (short i = 0; i < eneMenor->lon; i++)
 		{
-			if (eneMenor[i]->GetArea().IntersectsWith(mainPlayer->GetArea())) {
-				mainPlayer->TakeDamage(-eneMenor[i]->damage);
+			if (eneMenor->ElementoAt(i)->GetArea().IntersectsWith(mainPlayer->GetArea())) {
+				mainPlayer->TakeDamage(-eneMenor->ElementoAt(i)->damage);
 			}
 		}
 	}
@@ -1398,9 +1413,9 @@ public:
 		juegoEnProgreso = true;
 		tiempoActual = minutosPorPartida * 60;
 
-		labels[2]->Text = "Vidas";
-		labels[3]->Text = "Minutos de Juego";
-		buttons[0]->Text = "INICIAR JUEGO";
+		labels->ElementoAt(2)->Text = "Vidas";
+		labels->ElementoAt(3)->Text = "Minutos de Juego";
+		buttons->ElementoAt(0)->Text = "INICIAR JUEGO";
 
 		MessageBox::Show("TECLAS:\nMovimiento = Flechas\nDisparo = Mouse Click\nCambiar Ataque = NumPad1 y NumPad2 / Q y W");
 

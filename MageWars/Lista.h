@@ -151,7 +151,7 @@ public:
 		}
 	}
 
-	void borrarTodo() {
+	void BorrarTodo() {
 		while (lon > 0) {
 			EliminarFinal();
 		}
