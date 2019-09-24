@@ -778,9 +778,9 @@ public:
 	void Update(Graphics^ graficador) {
 		for (short i = 0; i < balas->lon; i++)
 		{
-			balas[i]->Update(graficador);
+			balas->At(i)->Update(graficador);
 		}
-		armas[currentWeapon]->Update(graficador, (CEntidad^)this);
+		armas->At(currentWeapon)->Update(graficador, (CEntidad^)this);
 		Animar(graficador);
 		Mover(graficador);
 
@@ -819,9 +819,9 @@ public:
 	}
 
 	void ChangeDamageMultiplier() {
-		for (short i = 0; i < armas->Count; i++)
+		for (short i = 0; i < armas->lon; i++)
 		{
-			armas[i]->SetDamageMultiplier(CManagerDeNivel::GetInstance()->GetNumeroNivel() + 1);
+			armas->At(i)->SetDamageMultiplier(CManagerDeNivel::GetInstance()->GetNumeroNivel() + 1);
 		}
 	}
 
@@ -830,14 +830,14 @@ public:
 	}
 
 	void AgregarArma(CArma^ arma) {
-		armas->Add(arma);
+		armas->AgregarFinal(arma);
 	}
 
 	void Disparar(short indiceInicial, short indiceFinal) {
 		//for (int i = 0; i < armas->Count; i++)
 		//{
 
-		armas[currentWeapon]->Disparar(indiceInicial, indiceFinal, balas);
+		armas->At(currentWeapon)->Disparar(indiceInicial, indiceFinal, balas);
 		//}
 	}
 
@@ -963,30 +963,30 @@ ref class CEnemigoMayor : public CMovil {
 public:
 	CEnemigoMayor(String^ ruta, Rectangle _area, short _subImagenesX, short _subImagenesY, float _speed, float _attackSpeed)
 		: CMovil(ruta, _area, _subImagenesX, _subImagenesY, _speed) {
-		armas = gcnew List<CArma^>();
-		balas = gcnew List<CBala^>();
+		armas = gcnew Lista<CArma^>();
+		balas = gcnew Lista<CBala^>();
 		attackSpeed = _attackSpeed;
 	}
 	CEnemigoMayor(Bitmap^ _imagen, Rectangle _area, short _subImagenesX, short _subImagenesY, float _speed, float _attackSpeed)
 		: CMovil(_imagen, _area, _subImagenesX, _subImagenesY, _speed) {
-		armas = gcnew List<CArma^>();
-		balas = gcnew List<CBala^>();
+		armas = gcnew Lista<CArma^>();
+		balas = gcnew Lista<CBala^>();
 		attackSpeed = _attackSpeed;
 	}
 
 	~CEnemigoMayor() {
-		for (int i = 0; i < armas->Count; i++)
+		for (int i = 0; i < armas->lon; i++)
 		{
-			delete armas[i];
+			armas->EliminarPosicion(i);
 		}
-		for (int i = 0; i < balas->Count; i++)
+		for (int i = 0; i < balas->lon; i++)
 		{
-			delete balas[i];
+			balas->EliminarPosicion(i);
 		}
 	}
 
-	List<CBala^>^ balas;
-	List<CArma^>^ armas;
+	Lista<CBala^>^ balas;
+	Lista<CArma^>^ armas;
 
 	EstadosEnemigo estadoActual;
 
@@ -1012,13 +1012,13 @@ public:
 	}
 
 	void Update(Graphics^ graficador) {
-		for (int i = 0; i < balas->Count; i++)
+		for (int i = 0; i < balas->lon; i++)
 		{
-			balas[i]->Update(graficador);
+			balas->At(i)->Update(graficador);
 		}
-		for (int i = 0; i < armas->Count; i++)
+		for (int i = 0; i < armas->lon; i++)
 		{
-			armas[i]->Update(graficador, (CEntidad^)this);
+			armas->At(i)->Update(graficador, (CEntidad^)this);
 		}
 
 		Animar(graficador);
@@ -1041,9 +1041,9 @@ public:
 				estadoActual = EstadosEnemigo::EChasing;
 			}
 
-			for (short i = 0; i < armas->Count; i++)
+			for (short i = 0; i < armas->lon; i++)
 			{
-				armas[i]->CambiarObjetivo(x1, y1 - 50);
+				armas->At(i)->CambiarObjetivo(x1, y1 - 50);
 			}
 			break;
 		case EstadosEnemigo::EChasing:
@@ -1051,9 +1051,9 @@ public:
 			dX = punto.X * (speed + CManagerDeNivel::GetInstance()->GetNumeroNivel()*velocidadPorNivel);
 			dY = punto.Y * (speed + CManagerDeNivel::GetInstance()->GetNumeroNivel()*velocidadPorNivel);
 
-			for (short i = 0; i < armas->Count; i++)
+			for (short i = 0; i < armas->lon; i++)
 			{
-				armas[i]->CambiarObjetivo(x2, y2);
+				armas->At(i)->CambiarObjetivo(x2, y2);
 			}
 
 			//Revisar la distancia con el jugador
@@ -1069,9 +1069,9 @@ public:
 			}
 			break;
 		case EstadosEnemigo::EShoot:
-			for (short i = 0; i < armas->Count; i++)
+			for (short i = 0; i < armas->lon; i++)
 			{
-				armas[i]->CambiarObjetivo(x2, y2);
+				armas->At(i)->CambiarObjetivo(x2, y2);
 			}
 			if (attacktime >= attackSpeed - CManagerDeNivel::GetInstance()->GetNumeroNivel()) {
 				attacktime = 0;
@@ -1095,13 +1095,13 @@ public:
 	}
 
 	void AgregarArma(CArma^ arma) {
-		armas->Add(arma);
+		armas->AgregarFinal(arma);
 	}
 
 	void Disparar(short indiceInicial, short indiceFinal) {
-		for (int i = 0; i < armas->Count; i++)
+		for (int i = 0; i < armas->lon; i++)
 		{
-			armas[i]->Disparar(indiceInicial, indiceFinal, balas);
+			armas->At(i)->Disparar(indiceInicial, indiceFinal, balas);
 		}
 	}
 
@@ -1137,8 +1137,8 @@ ref class CMainGameManager
 public:
 	static CMainGameManager^ instance;
 
-	List<CEnemigoMayor^>^ eneMayor;
-	List<CEnemigoMenor^>^ eneMenor;
+	Lista<CEnemigoMayor^>^ eneMayor;
+	Lista<CEnemigoMenor^>^ eneMenor;
 	CPlayer^ mainPlayer;
 
 	short enemigosEsteNivel;
@@ -1153,21 +1153,27 @@ public:
 	CMainGameManager(CPlayer^jugador) {
 		instance = this;
 		mainPlayer = jugador;
-		eneMayor = gcnew List<CEnemigoMayor^>();
-		eneMenor = gcnew List<CEnemigoMenor^>();
-		labels = gcnew List<Label^>();
-		buttons = gcnew List<Button^>();
+		eneMayor = gcnew Lista<CEnemigoMayor^>();
+		eneMenor = gcnew Lista<CEnemigoMenor^>();
+		labels = gcnew Lista<Label^>();
+		buttons = gcnew Lista<Button^>();
 	}
 	~CMainGameManager() {
+
+		/*
+		AGREGAR REMOVE ALL LUEGO DE PROBAR QUE FUNCIONA
+		*/
+
+
 		//Agregados deletes luego de la revision
-		for (short i = 0; i < eneMayor->Count; i++)
+		for (short i = 0; i < eneMayor->lon; i++)
 		{
-			delete eneMayor[i];
+			eneMayor->EliminarPosicion(i);
 		}
 		delete eneMayor;
-		for (short i = 0; i < eneMenor->Count; i++)
+		for (short i = 0; i < eneMenor->lon; i++)
 		{
-			delete eneMenor[i];
+			eneMenor->EliminarPosicion(i);
 		}
 		delete eneMenor;
 		for (short i = 0; i < labels->Count; i++)
