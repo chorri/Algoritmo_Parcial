@@ -471,9 +471,9 @@ private: System::Void PlayerKeyUp(System::Object^  sender, System::Windows::Form
 
 private: System::Void MoverElRaton(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
 		
-	for (short i = 0; i < GameManager->mainPlayer->armas->Count; i++)
+	for (short i = 0; i < GameManager->mainPlayer->armas->lon; i++)
 	{
-		GameManager->mainPlayer->armas[i]->CambiarObjetivo(e->X,e->Y);
+		GameManager->mainPlayer->armas->ElementoAt(i)->CambiarObjetivo(e->X,e->Y);
 	}
 
 }

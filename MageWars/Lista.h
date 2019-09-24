@@ -1,24 +1,27 @@
 #pragma once
 //#include "Nodo.h"
 
-template<typename T, T NADA = 0>
-class Nodo
+//Eliminado todos los T NADA = 0
+
+
+template<typename T>
+ref class Nodo
 {
 public:
 	T elem;
-	Nodo* sig;
-	Nodo* ant;
+	Nodo^ sig;
+	Nodo^ ant;
 
 	
-	Nodo(T elem = NADA, Nodo*sig = nullptr, Nodo*ant = nullptr) : elem(elem), sig(sig), ant(ant) {}
+	Nodo(T elem, Nodo^sig, Nodo^ant) : elem(elem), sig(sig), ant(ant) {}
 };
 
-template<typename T, T NADA = 0>
+template<typename T>
 ref class Lista
 {
-	Nodo* ini;
-	Nodo* aux;
-	Nodo* nuevo;
+	Nodo<T>^ ini;
+	Nodo<T>^ aux;
+	Nodo<T>^ nuevo;
 
 public:
 	unsigned int lon;
@@ -27,7 +30,7 @@ public:
 	~Lista(){}
 
 	void AgregarInicio(T elem) {
-		nuevo = new Nodo(elem, ini, nullptr);
+		nuevo = gcnew Nodo(elem, ini, nullptr);
 		if (lon > 0) {
 			ini->ant = nuevo;	
 		}
@@ -40,7 +43,7 @@ public:
 		for (unsigned int i = 1; i < lon; ++i) {
 			aux = aux->sig;
 		}
-		nuevo = new Nodo(elem, nullptr, aux);
+		nuevo = gcnew Nodo<T>(elem, nullptr, aux);
 		if (lon > 0) {
 			aux->sig = nuevo;
 		}
@@ -61,7 +64,7 @@ public:
 				AgregarFinal(elem);
 			}
 			else {
-				nuevo = new Nodo(elem, aux, aux->ant);
+				nuevo = gcnew Nodo<T>(elem, aux, aux->ant);
 				nuevo->ant->sig = nuevo;
 				nuevo->sig->ant = nuevo;
 
@@ -80,12 +83,14 @@ public:
 			delete aux;
 			--lon;
 		}
-		else //error;
+		else {
+
+		}//error;
 	}
 	void EliminarFinal() {
 		if (lon > 0) {
 			aux = ini;
-			for (unsigned int = 1; i < lon; ++i) {
+			for (unsigned int i = 1; i < lon; ++i) {
 				aux = aux->sig;
 			}
 			if (lon > 1) {
@@ -96,7 +101,9 @@ public:
 			delete aux;
 			--lon;
 		}
-		else //error;
+		else {
+
+		}//error;
 	}
 	void EliminarPosicion(unsigned int pos) {
 		if (lon > 0) {
@@ -108,7 +115,7 @@ public:
 			}
 			else {
 				aux = ini;
-				for (unsigned int = 1; i < pos; ++i) {
+				for (unsigned int i = 1; i < pos; ++i) {
 					aux = aux->sig;
 				}
 				if (lon > 1) {
@@ -121,10 +128,12 @@ public:
 				--lon;
 			}
 		}
-		else //error;
+		else {
+
+		}//error;
 	}
 
-	Nodo* At(unsigned int pos) {
+	Nodo<T>^ At(unsigned int pos) {
 		aux = ini;
 		for (unsigned int i = 1; i < pos; ++i) {
 			aux = aux->sig;
