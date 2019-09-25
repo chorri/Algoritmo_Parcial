@@ -1,5 +1,7 @@
 #pragma once
 #include "Lista.h"
+#include "Pila.h"
+#include "Cola.h"
 
 #include <functional>
 #include <fstream>
@@ -880,14 +882,14 @@ public:
 	}
 
 	void Crecer(float cantidad/*De 0 a 1*/) {
-		area.Width += area.Width*cantidad;
-		area.Height += area.Height*cantidad;
-		if (area.Width > originalWidth*maximasMedidas) {
-			area.Width = originalWidth * maximasMedidas;
-		}
-		if (area.Height > originalHeight*maximasMedidas) {
-			area.Height = originalHeight * maximasMedidas;
-		}
+//		area.Width += area.Width*cantidad;
+//		area.Height += area.Height*cantidad;
+//		if (area.Width > originalWidth*maximasMedidas) {
+//			area.Width = originalWidth * maximasMedidas;
+//		}
+//		if (area.Height > originalHeight*maximasMedidas) {
+//			area.Height = originalHeight * maximasMedidas;
+//		}
 	}
 };
 
@@ -1170,7 +1172,9 @@ ref class CMainGameManager
 public:
 	static CMainGameManager^ instance;
 
-	Lista<CEnemigoMayor^>^ eneMayor;
+	Pila<CEnemigoMayor^>^ eneMayor;
+	CEnemigoMayor^ eneMayorActual;
+
 	Lista<CEnemigoMenor^>^ eneMenor;
 	CPlayer^ mainPlayer;
 
@@ -1186,14 +1190,14 @@ public:
 	CMainGameManager(CPlayer^jugador) {
 		instance = this;
 		mainPlayer = jugador;
-		eneMayor = gcnew Lista<CEnemigoMayor^>();
+		eneMayor = gcnew Pila<CEnemigoMayor^>();
 		eneMenor = gcnew Lista<CEnemigoMenor^>();
 		labels = gcnew Lista<Label^>();
 		buttons = gcnew Lista<Button^>();
 	}
 	~CMainGameManager() {
 		
-		eneMayor->BorrarTodo();
+		eneMayor->BorrarTodo(1);
 		delete eneMayor;
 
 		eneMenor->BorrarTodo();
@@ -1251,10 +1255,10 @@ public:
 		
 		for (short i = 1; i <= eneMayor->lon; i++)
 		{
-			eneMayor->ElementoAt(i)->balas->BorrarTodo();
-			eneMayor->ElementoAt(i)->armas->BorrarTodo();
+			eneMayor->Peek(i)->balas->BorrarTodo();
+			eneMayor->Peek(i)->armas->BorrarTodo();
 		}
-		eneMayor->BorrarTodo();
+		eneMayor->BorrarTodo(1);
 		eneMenor->BorrarTodo();
 		startingEnemys = 0;
 		currentEnemys = 0;
@@ -1292,7 +1296,7 @@ public:
 			temp->AgregarArma(tempArma);
 			temp->ChangeDistanciaMin(100 + add*20);
 			temp->ChangeDistanciaMax(200 + add*20);
-			eneMayor->AgregarFinal(temp);
+			eneMayor->PUSH(temp);
 			currentEnemys++;
 		}
 		startingEnemys = currentEnemys;
@@ -1361,10 +1365,12 @@ public:
 			{
 				eneMenor->ElementoAt(i)->Update(graficador);
 			}
-			for (int i = 1; i <= eneMayor->lon; i++)
-			{
-				eneMayor->ElementoAt(i)->Update(graficador);
-			}
+			//for (int i = 1; i <= eneMayor->lon; i++)
+			//{
+				//eneMayor->Peek(i)->Update(graficador);
+			//}
+
+
 
 			CheckColision();
 			if (tiempoActual < 0 || mainPlayer->vida <= 0) {
@@ -1391,11 +1397,11 @@ public:
 		{
 			for (short j = 1; j <= eneMayor->lon; j++)
 			{
-				if (mainPlayer->balas->ElementoAt(i)->CheckCollison(eneMayor->ElementoAt(j)->GetArea()) && (mainPlayer->balas->ElementoAt(i)->estadoActual != EstadosBala::Impact || mainPlayer->balas->ElementoAt(i)->quickFixAreaDuration)) {
-					eneMayor->ElementoAt(j)->ChangeVida(-mainPlayer->balas->ElementoAt(i)->daño);
-					if (eneMayor->ElementoAt(j)->vida <= 0) {
-						eneMayor->ElementoAt(j)->estadoActual = EstadosEnemigo::EDying;
-						eneMayor->Remove(eneMayor->ElementoAt(j));
+				if (mainPlayer->balas->ElementoAt(i)->CheckCollison(eneMayor->Peek(j)->GetArea()) && (mainPlayer->balas->ElementoAt(i)->estadoActual != EstadosBala::Impact || mainPlayer->balas->ElementoAt(i)->quickFixAreaDuration)) {
+					eneMayor->Peek(j)->ChangeVida(-mainPlayer->balas->ElementoAt(i)->daño);
+					if (eneMayor->Peek(j)->vida <= 0) {
+						eneMayor->Peek(j)->estadoActual = EstadosEnemigo::EDying;
+						eneMayor->Remove(eneMayor->Peek(j));
 						currentEnemys--;
 						mainPlayer->ChangeVida(5);
 						mainPlayer->Crecer(0.08);
@@ -1418,10 +1424,10 @@ public:
 		}
 		for (short i = 1; i <= eneMayor->lon; i++)
 		{
-			for (int j = 0; j < eneMayor->ElementoAt(i)->balas->lon; j++)
+			for (int j = 0; j < eneMayor->Peek(i)->balas->lon; j++)
 			{
-				if (eneMayor->ElementoAt(i)->balas->ElementoAt(j)->CheckCollison(mainPlayer->GetArea()) && eneMayor->ElementoAt(i)->balas->ElementoAt(j)->estadoActual != EstadosBala::Impact) {
-					mainPlayer->TakeDamage(-eneMayor->ElementoAt(i)->balas->ElementoAt(j)->daño);
+				if (eneMayor->Peek(i)->balas->ElementoAt(j)->CheckCollison(mainPlayer->GetArea()) && eneMayor->Peek(i)->balas->ElementoAt(j)->estadoActual != EstadosBala::Impact) {
+					mainPlayer->TakeDamage(-eneMayor->Peek(i)->balas->ElementoAt(j)->daño);
 				}
 			}
 		}

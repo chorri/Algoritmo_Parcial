@@ -1,20 +1,9 @@
 #pragma once
-//#include "Nodo.h"
+#include "Nodo.h"
 
 //Eliminado todos los T NADA = 0
 
 
-template<typename T>
-ref class Nodo
-{
-public:
-	T elem;
-	Nodo^ sig;
-	Nodo^ ant;
-
-	
-	Nodo(T elem, Nodo^sig, Nodo^ant) : elem(elem), sig(sig), ant(ant) {}
-};
 
 template<typename T>
 ref class Lista
