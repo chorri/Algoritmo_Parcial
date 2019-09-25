@@ -1,5 +1,11 @@
 #pragma once
 #include "Lista.h"
+
+#include <functional>
+#include <fstream>
+
+using namespace std;
+
 using namespace System;//Rectangle
 using namespace System::ComponentModel;
 using namespace System::Drawing;//Bitmap
@@ -7,6 +13,33 @@ using namespace System::Drawing::Drawing2D;
 using namespace System::Windows::Forms;
 using namespace System::Windows::Forms::Design;
 
+
+namespace {
+	auto GuardarPartida = [=](int vida, const char* ruta) {
+		fstream escritor(ruta, ios::out);
+
+		escritor << vida << endl;
+	};
+
+	auto CargarVida = [=](const char* ruta, int vidaDefault) -> int{
+		ifstream lector(ruta, ios::in);
+		
+
+		if (lector.fail()) {
+			return vidaDefault;
+		}
+
+		int valor;
+		lector >> valor;
+		if (valor <= 0) {
+			return vidaDefault;
+		}
+
+		lector.close();
+		
+		return  valor;		
+	};
+}
 
 
 //Los diferentes estados de las diferentes clases que usan maquinas de estados
@@ -1159,7 +1192,6 @@ public:
 		buttons = gcnew Lista<Button^>();
 	}
 	~CMainGameManager() {
-
 		
 		eneMayor->BorrarTodo();
 		delete eneMayor;
@@ -1278,6 +1310,8 @@ public:
 	}
 
 	void AlternateMainTimer() {
+		GuardarPartida(mainPlayer->vida, "SaveFile.txt");
+
 		mainTimer->Enabled = !mainTimer->Enabled;
 		if (juegoEnProgreso) {
 			pauseText->Enabled = !mainTimer->Enabled;
@@ -1407,8 +1441,10 @@ public:
 	}
 
 	void StartGame() {
+
+
 		CManagerDeNivel::GetInstance()->CambiarDeNivel(0);
-		mainPlayer->SetVida(vidasIniciales);
+		mainPlayer->SetVida(CargarVida("SaveFile.txt",vidasIniciales));
 		SetMenuVisibility(false);
 		juegoEnProgreso = true;
 		tiempoActual = minutosPorPartida * 60;
