@@ -1299,6 +1299,7 @@ public:
 			eneMayor->PUSH(temp);
 			currentEnemys++;
 		}
+		eneMayorActual = eneMayor->Peek(eneMayor->lon);
 		startingEnemys = currentEnemys;
 	}
 
@@ -1370,7 +1371,7 @@ public:
 				//eneMayor->Peek(i)->Update(graficador);
 			//}
 
-
+			eneMayorActual->Update(graficador);
 
 			CheckColision();
 			if (tiempoActual < 0 || mainPlayer->vida <= 0) {
@@ -1393,19 +1394,57 @@ public:
 	}
 
 	void CheckColision() {
+
+//		for (short i = 1; i <= eneMayor->lon; i++)
+//		{
+//			for (int j = 0; j < eneMayor->Peek(i)->balas->lon; j++)
+//			{
+//				if (eneMayor->Peek(i)->balas->ElementoAt(j)->CheckCollison(mainPlayer->GetArea()) && eneMayor->Peek(i)->balas->ElementoAt(j)->estadoActual != EstadosBala::Impact) {
+//					mainPlayer->TakeDamage(-eneMayor->Peek(i)->balas->ElementoAt(j)->daño);
+//				}
+//			}
+//		}
+		for (int j = 0; j < eneMayorActual->balas->lon; j++)
+		{
+			if (eneMayorActual->balas->ElementoAt(j)->CheckCollison(mainPlayer->GetArea()) && eneMayorActual->balas->ElementoAt(j)->estadoActual != EstadosBala::Impact) {
+				mainPlayer->TakeDamage(-eneMayorActual->balas->ElementoAt(j)->daño);
+			}
+		}
+
+		for (short i = 1; i <= eneMenor->lon; i++)
+		{
+			if (eneMenor->ElementoAt(i)->GetArea().IntersectsWith(mainPlayer->GetArea())) {
+				mainPlayer->TakeDamage(-eneMenor->ElementoAt(i)->damage);
+			}
+		}
+
 		for (short i = 1; i <= mainPlayer->balas->lon; i++)
 		{
-			for (short j = 1; j <= eneMayor->lon; j++)
-			{
-				if (mainPlayer->balas->ElementoAt(i)->CheckCollison(eneMayor->Peek(j)->GetArea()) && (mainPlayer->balas->ElementoAt(i)->estadoActual != EstadosBala::Impact || mainPlayer->balas->ElementoAt(i)->quickFixAreaDuration)) {
-					eneMayor->Peek(j)->ChangeVida(-mainPlayer->balas->ElementoAt(i)->daño);
-					if (eneMayor->Peek(j)->vida <= 0) {
-						eneMayor->Peek(j)->estadoActual = EstadosEnemigo::EDying;
-						eneMayor->Remove(eneMayor->Peek(j));
-						currentEnemys--;
-						mainPlayer->ChangeVida(5);
-						mainPlayer->Crecer(0.08);
-					}
+//			for (short j = 1; j <= eneMayor->lon; j++)
+//			{
+//				if (mainPlayer->balas->ElementoAt(i)->CheckCollison(eneMayor->Peek(j)->GetArea()) && (mainPlayer->balas->ElementoAt(i)->estadoActual != EstadosBala::Impact || mainPlayer->balas->ElementoAt(i)->quickFixAreaDuration)) {
+//					eneMayor->Peek(j)->ChangeVida(-mainPlayer->balas->ElementoAt(i)->daño);
+//					if (eneMayor->Peek(j)->vida <= 0) {
+//						eneMayor->Peek(j)->estadoActual = EstadosEnemigo::EDying;
+//						eneMayor->Remove(eneMayor->Peek(j));
+//						currentEnemys--;
+//						mainPlayer->ChangeVida(5);
+//						mainPlayer->Crecer(0.08);
+//					}
+//				}
+//			}
+			if (mainPlayer->balas->ElementoAt(i)->CheckCollison(eneMayorActual->GetArea()) && (mainPlayer->balas->ElementoAt(i)->estadoActual != EstadosBala::Impact || mainPlayer->balas->ElementoAt(i)->quickFixAreaDuration)) {
+				eneMayorActual->ChangeVida(-mainPlayer->balas->ElementoAt(i)->daño);
+				if (eneMayorActual->vida <= 0) {
+					//eneMayorActual->estadoActual = EstadosEnemigo::EDying;
+					CEnemigoMayor^ refe = eneMayor->PULL();
+					refe->balas->BorrarTodo();
+					refe->armas->BorrarTodo();
+					delete refe;
+					currentEnemys--;
+					mainPlayer->ChangeVida(5);
+					mainPlayer->Crecer(0.08);
+					
 				}
 			}
 			for (short j = 1; j <= eneMenor->lon; j++)
@@ -1420,21 +1459,6 @@ public:
 						mainPlayer->Crecer(0.05);
 					}
 				}
-			}
-		}
-		for (short i = 1; i <= eneMayor->lon; i++)
-		{
-			for (int j = 0; j < eneMayor->Peek(i)->balas->lon; j++)
-			{
-				if (eneMayor->Peek(i)->balas->ElementoAt(j)->CheckCollison(mainPlayer->GetArea()) && eneMayor->Peek(i)->balas->ElementoAt(j)->estadoActual != EstadosBala::Impact) {
-					mainPlayer->TakeDamage(-eneMayor->Peek(i)->balas->ElementoAt(j)->daño);
-				}
-			}
-		}
-		for (short i = 1; i <= eneMenor->lon; i++)
-		{
-			if (eneMenor->ElementoAt(i)->GetArea().IntersectsWith(mainPlayer->GetArea())) {
-				mainPlayer->TakeDamage(-eneMenor->ElementoAt(i)->damage);
 			}
 		}
 	}

@@ -41,8 +41,6 @@ public:
 		for (unsigned int i = 1; i < lon; ++i) {
 			aux = aux->sig;
 		}
-		aux->ant->sig = nullptr;
-
 		devolver = aux->elem;
 		delete aux;
 		return devolver;
