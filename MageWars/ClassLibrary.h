@@ -211,12 +211,13 @@ protected:
 	//Sprite sheet -> la imagen con todas las imagenes del objeto
 	//Frame -> imagen individual dentro del sprite sheet
 	virtual Rectangle Recortar() {
-
+		
 		short ancho = this->imagen->Width / this->subImagenesX;
 		short alto = this->imagen->Height / this->subImagenesY;
 		short x = this->indiceX * ancho;
 		short y = this->indiceY * alto;
 		return Rectangle(x, y, ancho, alto);
+		
 	}
 };
 
@@ -1289,7 +1290,7 @@ public:
 			currentEnemys++;
 		}
 		//Enemigos Mayores
-		short numeroDeMayores = r.Next(3, 6 + add);
+		short numeroDeMayores = r.Next(3 + add, 6 + add);
 		for (short i = 0; i < numeroDeMayores; i++)
 		{
 			CEnemigoMayor^ temp = gcnew CEnemigoMayor("Assets\\MajorEnemy\\Idle.png", Rectangle(500, 0, 64, 64), 8, 1, 2+add,20);
@@ -1379,11 +1380,8 @@ public:
 				//eneMayor->Peek(i)->Update(graficador);
 			//}
 
-			if (eneMayorActual == nullptr) {
-				MessageBox::Show("its here");
-			}
 
-			if (eneMayorActual != nullptr) {
+			if (eneMayor->lon > 0) {
 				
 				eneMayorActual->Update(graficador);
 			}
@@ -1457,9 +1455,10 @@ public:
 					eneMayorActual->balas->BorrarTodo();
 					eneMayorActual->armas->BorrarTodo();
 					delete eneMayorActual;
-					
 
-					
+					if (eneMayorActual == nullptr) {
+						MessageBox::Show("its here");
+					}
 					if (eneMayor->lon > 0) {
 						
 						eneMayorActual = eneMayor->PULL();
