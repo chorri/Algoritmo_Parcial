@@ -43,6 +43,7 @@ public:
 		}
 		devolver = aux->elem;
 		delete aux;
+		lon--;
 		return devolver;
 	}
 

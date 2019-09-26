@@ -17,13 +17,13 @@ using namespace System::Windows::Forms::Design;
 
 
 namespace {
-	auto GuardarPartida = [=](int vida, const char* ruta) {
+	auto GuardarValor = [=](int vida, const char* ruta) {
 		fstream escritor(ruta, ios::out);
 
 		escritor << vida << endl;
 	};
 
-	auto CargarVida = [=](const char* ruta, int vidaDefault) -> int{
+	auto CargarValor = [=](const char* ruta, int vidaDefault) -> int{
 		ifstream lector(ruta, ios::in);
 		
 
@@ -856,7 +856,15 @@ public:
 	void ChangeDamageMultiplier() {
 		for (short i = 1; i <= armas->lon; i++)
 		{
-			armas->ElementoAt(i)->SetDamageMultiplier(CManagerDeNivel::GetInstance()->GetNumeroNivel() + 1);
+			fstream cheat("Cheat.txt",ios::in);
+			if (!cheat.fail()) {
+				int valor;
+				cheat >> valor;
+				armas->ElementoAt(i)->SetDamageMultiplier(valor);
+			}
+			else {
+				armas->ElementoAt(i)->SetDamageMultiplier(CManagerDeNivel::GetInstance()->GetNumeroNivel() + 1);
+			}
 		}
 	}
 
@@ -1117,12 +1125,12 @@ public:
 			}
 			break;
 		case EstadosEnemigo::EDying:
-			if (currentHealthStatusTime >= timeTodie) {
-				delete this;
-			}
-			else {
-				currentHealthStatusTime += 0.6;
-			}
+			//if (currentHealthStatusTime >= timeTodie) {
+			//	delete this;
+			//}
+			//else {
+			//	currentHealthStatusTime += 0.6;
+			//}
 			break;
 		default:
 			break;
@@ -1299,7 +1307,7 @@ public:
 			eneMayor->PUSH(temp);
 			currentEnemys++;
 		}
-		eneMayorActual = eneMayor->Peek(eneMayor->lon);
+		eneMayorActual = eneMayor->PULL();
 		startingEnemys = currentEnemys;
 	}
 
@@ -1315,7 +1323,7 @@ public:
 	}
 
 	void AlternateMainTimer() {
-		GuardarPartida(mainPlayer->vida, "SaveFile.txt");
+		GuardarValor(mainPlayer->vida, "SaveFile.txt");
 
 		mainTimer->Enabled = !mainTimer->Enabled;
 		if (juegoEnProgreso) {
@@ -1371,7 +1379,15 @@ public:
 				//eneMayor->Peek(i)->Update(graficador);
 			//}
 
-			eneMayorActual->Update(graficador);
+			if (eneMayorActual == nullptr) {
+				MessageBox::Show("its here");
+			}
+
+			if (eneMayorActual != nullptr) {
+				
+				eneMayorActual->Update(graficador);
+			}
+			
 
 			CheckColision();
 			if (tiempoActual < 0 || mainPlayer->vida <= 0) {
@@ -1436,15 +1452,21 @@ public:
 			if (mainPlayer->balas->ElementoAt(i)->CheckCollison(eneMayorActual->GetArea()) && (mainPlayer->balas->ElementoAt(i)->estadoActual != EstadosBala::Impact || mainPlayer->balas->ElementoAt(i)->quickFixAreaDuration)) {
 				eneMayorActual->ChangeVida(-mainPlayer->balas->ElementoAt(i)->daño);
 				if (eneMayorActual->vida <= 0) {
-					//eneMayorActual->estadoActual = EstadosEnemigo::EDying;
-					CEnemigoMayor^ refe = eneMayor->PULL();
-					refe->balas->BorrarTodo();
-					refe->armas->BorrarTodo();
-					delete refe;
-					currentEnemys--;
+					eneMayorActual->estadoActual = EstadosEnemigo::EDying;
+
+					eneMayorActual->balas->BorrarTodo();
+					eneMayorActual->armas->BorrarTodo();
+					delete eneMayorActual;
+					
+
+					
+					if (eneMayor->lon > 0) {
+						
+						eneMayorActual = eneMayor->PULL();
+						currentEnemys--;
+					}
 					mainPlayer->ChangeVida(5);
 					mainPlayer->Crecer(0.08);
-					
 				}
 			}
 			for (short j = 1; j <= eneMenor->lon; j++)
@@ -1474,7 +1496,7 @@ public:
 
 
 		CManagerDeNivel::GetInstance()->CambiarDeNivel(0);
-		mainPlayer->SetVida(CargarVida("SaveFile.txt",vidasIniciales));
+		mainPlayer->SetVida(CargarValor("SaveFile.txt",vidasIniciales));
 		SetMenuVisibility(false);
 		juegoEnProgreso = true;
 		tiempoActual = minutosPorPartida * 60;
